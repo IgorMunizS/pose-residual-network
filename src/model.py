@@ -13,7 +13,7 @@ def PRN(height, width, node_count):
     x = keras.layers.Activation('softmax')(x)
     x = Reshape((height, width, 17))(x)
     model = Model(inputs=input, outputs=x)
-    print model.summary()
+    print(model.summary())
     return model
 
 
@@ -38,5 +38,5 @@ def PRN_Seperate(height, width, node_count):
     x = keras.layers.Concatenate()(out)
     x = Reshape((height, width, 17))(x)
     model = Model(inputs=input, outputs=x)
-    print model.summary()
+    print(model.summary())
     return model

@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from gaussian import gaussian, gaussian_multi_input_mp, gaussian_multi_output
+from .gaussian import gaussian, gaussian_multi_input_mp, gaussian_multi_output
 from random import shuffle
 
 

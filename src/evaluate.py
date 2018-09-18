@@ -6,7 +6,7 @@ from tqdm import tqdm
 from random import shuffle
 
 from pycocotools.cocoeval import COCOeval
-from gaussian import gaussian, crop, gaussian_multi_input_mp
+from .gaussian import gaussian, crop, gaussian_multi_input_mp
 
 def Evaluation(model,optin,coco):
     print ('------------Evaulation Started------------')
