@@ -11,9 +11,9 @@ from src.evaluate import Evaluation
 class My_Callback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         self.model.save('checkpoint/'+option.exp + 'epoch_{}.h5'.format(epoch))
-        print 'Epoch', epoch+1, 'has been saved'
+        print('Epoch', epoch+1, 'has been saved')
         Evaluation(self.model, option, coco_val)
-        print 'Epoch', epoch+1, 'has been tested'
+        print ('Epoch', epoch+1, 'has been tested')
         return
 
 
