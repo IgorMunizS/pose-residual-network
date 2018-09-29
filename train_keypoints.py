@@ -213,8 +213,8 @@ if __name__ == '__main__':
 
     curr_dir = os.path.dirname(__file__)
     if args.ambient == "colab":
-        annot_path = os.path.join(curr_dir, '../dataset/annotations/person_keypoints_train2017.json')
-        img_dir = os.path.abspath(os.path.join(curr_dir, '../dataset/train2017/'))
+        annot_path = os.path.join(curr_dir, 'data/annotations/person_keypoints_train2017.json')
+        img_dir = os.path.abspath(os.path.join(curr_dir, 'data/train2017/'))
     else:
         annot_path = ('/home/igor/Pesquisa/Datasets/COCO/annotations/person_keypoints_val2017.json')
         img_dir = ('/home/igor/Pesquisa/Datasets/COCO/val2017/')
