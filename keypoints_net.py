@@ -134,17 +134,16 @@ def resnet_graph(input_image, architecture, stage5=False):
 
 
 
-
-    return weights_path
-
 class KeypointNet():
 
     def __init__(self, nb_keypoints):
         self.nb_keypoints = nb_keypoints + 1 # K + 1(mask)
         input_image = KL.Input(shape=(480,480,3))
+        input_heat_mask = KL.Input(shape=(120,120,19))
         _,C2,C3,C4,C5 = resnet_graph(input_image, "resnet50", True)
         self.fpn_part(C2,C3,C4,C5)
-        self.model = Model(inputs=input_image, outputs=[self.D])
+        self.apply_mask(self.D, input_heat_mask)
+        self.model = Model(inputs=[input_image, input_heat_mask], outputs=[self.w])
         print(self.model.summary())
 
     def fpn_part(self, C2,C3,C4,C5):
@@ -183,7 +182,12 @@ class KeypointNet():
         self.D = KL.Conv2D(512, (3, 3), activation="relu", padding="SAME", name="Dfinal_1")(self.concat)
         self.D = KL.Conv2D(self.nb_keypoints, (1, 1), padding="SAME", name="Dfinal_2")(self.D)
 
+    def apply_mask(self, x, mask):
+        w_name = "weight_masked"
+
+        self.w = KL.Multiply(name=w_name)([x, mask])  # vec_heat
 
 
-#print(get_imagenet_weights())
+
+
 

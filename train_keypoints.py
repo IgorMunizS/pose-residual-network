@@ -1,14 +1,11 @@
 import math
 import os
-import re
 import sys
 import pandas
 from functools import partial
 import argparse
 import keras.backend as K
-from keras.applications.vgg19 import VGG19
 from keras.callbacks import LearningRateScheduler, ModelCheckpoint, CSVLogger, TensorBoard
-from keras.layers.convolutional import Conv2D
 from keras.optimizers import Adam
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -55,74 +52,6 @@ def get_last_epoch():
     return max(data['epoch'].values)
 
 
-def restore_weights(weights_best_file, model):
-    """
-    Restores weights from the checkpoint file if exists or
-    preloads the first layers with VGG19 weights
-
-    :param weights_best_file:
-    :return: epoch number to use to continue training. last epoch + 1 or 0
-    """
-    # load previous weights or vgg19 if this is the first run
-    if os.path.exists(weights_best_file):
-        print("Loading the best weights...")
-
-        model.load_weights(weights_best_file, by_name=True)
-
-        if "imagenet" in weights_best_file:
-            return 0
-        else:
-
-            return 1
-    else:
-        print("Loading vgg19 weights...")
-
-        vgg_model = VGG19(include_top=False, weights='imagenet')
-
-        for layer in model.layers:
-            if layer.name in from_vgg:
-                vgg_layer_name = from_vgg[layer.name]
-                layer.set_weights(vgg_model.get_layer(vgg_layer_name).get_weights())
-                print("Loaded VGG19 layer: " + vgg_layer_name)
-
-        return 0
-
-
-def get_lr_multipliers(model):
-    """
-    Setup multipliers for stageN layers (kernel and bias)
-
-    :param model:
-    :return: dictionary key: layer name , value: multiplier
-    """
-    lr_mult = dict()
-    for layer in model.layers:
-
-        if isinstance(layer, Conv2D):
-
-            # stage = 1
-            if re.match("Mconv\d_stage1.*", layer.name):
-                kernel_name = layer.weights[0].name
-                bias_name = layer.weights[1].name
-                lr_mult[kernel_name] = 1
-                lr_mult[bias_name] = 2
-
-            # stage > 1
-            elif re.match("Mconv\d_stage.*", layer.name):
-                kernel_name = layer.weights[0].name
-                bias_name = layer.weights[1].name
-                lr_mult[kernel_name] = 4
-                lr_mult[bias_name] = 8
-
-            # vgg
-            else:
-                kernel_name = layer.weights[0].name
-                bias_name = layer.weights[1].name
-                lr_mult[kernel_name] = 1
-                lr_mult[bias_name] = 2
-
-    return lr_mult
-
 
 def get_loss_funcs():
     """
@@ -134,7 +63,8 @@ def get_loss_funcs():
         return K.sum(K.square(x - y)) / batch_size / 2
 
     losses = {}
-    losses["Dfinal_2"] = _eucl_loss
+    #losses["Dfinal_2"] = _eucl_loss
+    losses["weight_masked"] = _eucl_loss
     # losses["weight_stage1_L2"] = _eucl_loss
     # losses["weight_stage2_L1"] = _eucl_loss
     # losses["weight_stage2_L2"] = _eucl_loss
@@ -204,6 +134,7 @@ if __name__ == '__main__':
     #last_epoch = restore_weights("../model/squeeze_imagenet.h5", model)
     if args.weights == 'init':
         weight = get_imagenet_weights()
+        print(weight)
         model.load_weights(weight, by_name=True)
     else:
         model.load_weights(args.weights, by_name=True)
@@ -233,7 +164,7 @@ if __name__ == '__main__':
 
     # setup lr multipliers for conv layers
 
-    lr_multipliers = get_lr_multipliers(model)
+    #lr_multipliers = get_lr_multipliers(model)
 
     # configure callbacks
 
@@ -258,7 +189,7 @@ if __name__ == '__main__':
     loss_funcs = get_loss_funcs()
     model.compile(loss=loss_funcs, optimizer=opt, metrics=["accuracy"])
     model.fit_generator(train_gen,
-                        steps_per_epoch=5000,
+                        steps_per_epoch=4000,
                         epochs=max_iter,
                         callbacks=callbacks_list,
                         # validation_data=val_di,

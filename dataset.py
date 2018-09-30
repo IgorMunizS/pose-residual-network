@@ -161,10 +161,10 @@ def build_sample(components):
     else:
         #print(meta.mask.shape)
 
-        mask_heatmap = create_all_mask(meta.mask, 19, stride=8)
+        mask_heatmap = create_all_mask(meta.mask, 19, stride=4)
 
     heatmap = create_heatmap(JointsLoader.num_joints_and_bkg, 120, 120,
-                             meta.aug_joints, 7.0, stride=8)
+                             meta.aug_joints, 7.0, stride=4)
 
 
     # release reference to the image/mask/augmented data. Otherwise it would easily consume all memory at some point
@@ -172,7 +172,7 @@ def build_sample(components):
     meta.img = None
     meta.aug_joints = None
     meta.aug_center = None
-    return [image.astype(np.uint8), heatmap]
+    return [image.astype(np.uint8), mask_heatmap, heatmap]
 
 
 def get_dataflow(annot_path, img_dir):
@@ -206,8 +206,8 @@ def batch_dataflow(df, batch_size):
     """
     df = BatchData(df, batch_size, use_list=False)
     df = MapData(df, lambda x: (
-        x[0],
-        x[1])
+        [x[0], x[1]],
+        [x[2]])
                  )
     df.reset_state()
     return df
