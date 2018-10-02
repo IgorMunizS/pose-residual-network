@@ -64,8 +64,8 @@ def get_loss_funcs():
         return K.sum(K.square(x - y)) / batch_size / 2
 
     losses = {}
-    #losses["Dfinal_2"] = _eucl_loss
-    losses["weight_masked"] = _eucl_loss
+    losses["Dfinal_2"] = _eucl_loss
+    #losses["weight_masked"] = _eucl_loss
     # losses["weight_stage1_L2"] = _eucl_loss
     # losses["weight_stage2_L1"] = _eucl_loss
     # losses["weight_stage2_L2"] = _eucl_loss
