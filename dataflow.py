@@ -260,4 +260,5 @@ class CocoDataFlow(RNGDataFlow):
         idxs = np.arange(self.size())
         self.rng.shuffle(idxs)
         for idx in idxs:
+            print(idx, idxs)
             yield [self.all_meta[idx]]

@@ -60,6 +60,7 @@ def get_loss_funcs():
     :return:
     """
     def _eucl_loss(x, y):
+        print(x.shape, y.shape)
         return K.sum(K.square(x - y)) / batch_size / 2
 
     losses = {}
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     loss_funcs = get_loss_funcs()
     model.compile(loss=loss_funcs, optimizer=opt, metrics=["accuracy"])
     model.fit_generator(train_gen,
-                        steps_per_epoch=4000,
+                        steps_per_epoch=2,
                         epochs=max_iter,
                         callbacks=callbacks_list,
                         # validation_data=val_di,
