@@ -190,7 +190,7 @@ if __name__ == '__main__':
     loss_funcs = get_loss_funcs()
     model.compile(loss=loss_funcs, optimizer=opt, metrics=["accuracy"])
     model.fit_generator(train_gen,
-                        steps_per_epoch=4000,
+                        steps_per_epoch=5000,
                         epochs=max_iter,
                         callbacks=callbacks_list,
                         # validation_data=val_di,
