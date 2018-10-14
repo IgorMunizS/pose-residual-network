@@ -259,12 +259,9 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
     """
     # choose default input
     if inputs is None:
-        if keras.backend.image_data_format() == 'channels_first':
-            inputs = keras.layers.Input(shape=(3, None, None))
-        else:
-            inputs = keras.layers.Input(shape=(None, None, 3))
+        inputs = (None, None, 3)
 
-    resnet = ResNet().model
+    resnet = ResNet(inputs).model
 
     # invoke modifier if given
     if modifier:
@@ -273,4 +270,4 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
     print(resnet.summary())
     print(resnet.output)
     # create the full model
-    return retinanet.retinanet(inputs=inputs, num_classes=num_classes, backbone_layers=resnet.outputs[1:], **kwargs)
+    return retinanet.retinanet(inputs=resnet.inputs, num_classes=num_classes, backbone_layers=resnet.outputs[1:], **kwargs)
