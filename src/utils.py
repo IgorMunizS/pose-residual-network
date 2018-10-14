@@ -42,10 +42,11 @@ def get_data(ann_data, coco, height, width,thres):
             else:
                 output[y0, x0, j] = 1
 
+    print(ann_data)
     img_id = ann_data['image_id']
     img_data = coco.loadImgs(img_id)[0]
     ann_data = coco.loadAnns(coco.getAnnIds(img_data['id']))
-
+    print(ann_data)
     for ann in ann_data:
         kpx = ann['keypoints'][0::3]
         kpy = ann['keypoints'][1::3]
@@ -77,7 +78,7 @@ def get_data(ann_data, coco, height, width,thres):
         weights[:, :, t] = gaussian(weights[:, :, t])
     output  =  gaussian(output, sigma=2, mode='constant', multichannel=True)
     #weights = gaussian_multi_input_mp(weights)
-    return weights, output
+    return weights, output, ann_data
 
 
 def get_anns(coco):
@@ -105,12 +106,12 @@ def train_bbox_generator(coco_train,batch_size,height,width,thres):
             for j in range(batch_size):
                 ann_data = anns[i+j]
                 try:
-                    x, y = get_data(ann_data, coco_train, height, width, thres)
+                    x, y, z = get_data(ann_data, coco_train, height, width, thres)
                 except:
                     continue
                 X[j, :, :, :] = x
                 Y[j, :, :, :] = y
-            yield X, Y
+            yield X, Y, z
 
 
 
