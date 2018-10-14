@@ -264,7 +264,7 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
         else:
             inputs = keras.layers.Input(shape=(None, None, 3))
 
-    resnet = ResNet(inputs).model
+    resnet = ResNet().model
 
     # invoke modifier if given
     if modifier:
