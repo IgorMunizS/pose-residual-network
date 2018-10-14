@@ -132,18 +132,19 @@ class CocoGenerator(Generator):
         # parse annotations
         coco_annotations = self.coco.loadAnns(annotations_ids)
         for idx, a in enumerate(coco_annotations):
-            # some annotations have basically no width / height, skip them
-            if a['bbox'][2] < 1 or a['bbox'][3] < 1:
-                continue
+            if a['category_id'] == 1:
+                # some annotations have basically no width / height, skip them
+                if a['bbox'][2] < 1 or a['bbox'][3] < 1:
+                    continue
 
-            annotation        = np.zeros((1, 5))
-            annotation[0, :4] = a['bbox']
-            annotation[0, 4]  = self.coco_label_to_label(a['category_id'])
-            annotations       = np.append(annotations, annotation, axis=0)
+                annotation        = np.zeros((1, 5))
+                annotation[0, :4] = a['bbox']
+                annotation[0, 4]  = self.coco_label_to_label(1)
+                annotations       = np.append(annotations, annotation, axis=0)
 
-        # transform from [x, y, w, h] to [x1, y1, x2, y2]
-        annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
-        annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
+            # transform from [x, y, w, h] to [x1, y1, x2, y2]
+            annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
+            annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
 
         return annotations
 
