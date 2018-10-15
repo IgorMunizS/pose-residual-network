@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .. preprocessing.generator import Generator
-from .. utils.image import read_image_bgr
+from ..preprocessing.generator import Generator
+from ..utils.image import read_image_bgr
 
 import os
 import numpy as np
@@ -58,7 +58,6 @@ class CocoGenerator(Generator):
         self.classes             = {}
         self.coco_labels         = {}
         self.coco_labels_inverse = {}
-
         for c in categories:
             self.coco_labels[len(self.classes)] = c['id']
             self.coco_labels_inverse[c['id']] = len(self.classes)
@@ -68,7 +67,9 @@ class CocoGenerator(Generator):
         self.labels = {}
         for key, value in self.classes.items():
             self.labels[value] = key
+
         print("Numero de classes: ", len(self.classes))
+
     def size(self):
         """ Size of the COCO dataset.
         """
@@ -123,7 +124,7 @@ class CocoGenerator(Generator):
         """
         # get ground truth annotations
         annotations_ids = self.coco.getAnnIds(imgIds=self.image_ids[image_index], iscrowd=False)
-        annotations     = np.zeros((0, 5))
+        annotations     = {'labels': np.empty((0,)), 'bboxes': np.empty((0, 4))}
 
         # some images appear to miss annotations (like image with id 257034)
         if len(annotations_ids) == 0:
@@ -137,22 +138,12 @@ class CocoGenerator(Generator):
                 if a['bbox'][2] < 1 or a['bbox'][3] < 1:
                     continue
 
-                annotation        = np.zeros((1, 5))
-                annotation[0, :4] = a['bbox']
-                annotation[0, 4]  = self.coco_label_to_label(1)
-                annotations       = np.append(annotations, annotation, axis=0)
-
-            # transform from [x, y, w, h] to [x1, y1, x2, y2]
-            annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
-            annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
+                annotations['labels'] = np.concatenate([annotations['labels'], [self.coco_label_to_label(a['category_id'])]], axis=0)
+                annotations['bboxes'] = np.concatenate([annotations['bboxes'], [[
+                    a['bbox'][0],
+                    a['bbox'][1],
+                    a['bbox'][0] + a['bbox'][2],
+                    a['bbox'][1] + a['bbox'][3],
+                ]]], axis=0)
 
         return annotations
-
-# common_args = {
-#     'batch_size'       : 1,
-#     'image_min_side'   : 800,
-#     'image_max_side'   : 1333,
-#     'preprocess_image' : None,
-# }
-
-# a = CocoGenerator('/home/igor/Pesquisa/Datasets/COCO', 'val2017', **common_args)
