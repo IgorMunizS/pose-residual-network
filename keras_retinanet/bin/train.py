@@ -484,6 +484,7 @@ def main(args=None):
         generator=train_generator,
         steps_per_epoch=args.steps,
         validation_data=validation_generator,
+        validation_steps= 200,
         epochs=args.epochs,
         verbose=1,
         callbacks=callbacks,
