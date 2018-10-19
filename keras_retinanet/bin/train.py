@@ -81,7 +81,7 @@ def model_with_weights(model, weights, skip_mismatch):
     return model
 
 
-def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0, freeze_backbone=False, config=None):
+def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0, freeze_backbone=False, config=None, args=None):
     """ Creates three models (model, training_model, prediction_model).
 
     Args
@@ -121,13 +121,19 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0, freeze_
     # make prediction model
     prediction_model = retinanet_bbox(model=model, anchor_params=anchor_params)
 
+    if args.optimizer == 'adam':
+        opt = keras.optimizers.adam(lr=args.lr, clipnorm=0.001)
+    elif args.optimizer == 'sgd':
+        opt = keras.optimizers.sgd(lr=args.lr, decay=0.00001, momentum=0.9, nesterov=True)
+
+
     # compile model
     training_model.compile(
         loss={
             'regression'    : losses.smooth_l1(),
             'classification': losses.focal()
         },
-        optimizer=keras.optimizers.adam(lr=1e-5, clipnorm=0.001)
+        optimizer=opt
     )
 
     return model, training_model, prediction_model
@@ -408,7 +414,8 @@ def parse_args(args):
     parser.add_argument('--image-max-side',   help='Rescale the image if the largest side is larger than max_side.', type=int, default=1333)
     parser.add_argument('--config',           help='Path to a configuration parameters .ini file.')
     parser.add_argument('--weighted-average', help='Compute the mAP using the weighted average of precisions among classes.', action='store_true')
-
+    parser.add_argument('--optimizer',        help='Choose optimizer', default='adam', type=str)
+    parser.add_argument('--lr',               help='Choose learning rate', default=1e-5, type=float)
     return check_args(parser.parse_args(args))
 
 
@@ -458,7 +465,8 @@ def main(args=None):
             weights=weights,
             multi_gpu=args.multi_gpu,
             freeze_backbone=args.freeze_backbone,
-            config=args.config
+            config=args.config,
+            args=args
         )
 
     # print model summary
