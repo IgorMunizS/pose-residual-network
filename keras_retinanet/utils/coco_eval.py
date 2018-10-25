@@ -55,19 +55,20 @@ def evaluate_coco(generator, model, threshold=0.05):
         # compute predicted labels and scores
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
             # scores are sorted, so we can break
-            if score < threshold:
-                break
+            if label == 0:
+                if score < threshold:
+                    break
 
-            # append detection for each positively labeled class
-            image_result = {
-                'image_id'    : generator.image_ids[index],
-                'category_id' : generator.label_to_coco_label(label),
-                'score'       : float(score),
-                'bbox'        : box.tolist(),
-            }
+                # append detection for each positively labeled class
+                image_result = {
+                    'image_id'    : generator.image_ids[index],
+                    'category_id' : generator.label_to_coco_label(label),
+                    'score'       : float(score),
+                    'bbox'        : box.tolist(),
+                }
 
-            # append detection to results
-            results.append(image_result)
+                # append detection to results
+                results.append(image_result)
 
         # append image to list of processed images
         image_ids.append(generator.image_ids[index])
