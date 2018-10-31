@@ -5,21 +5,37 @@ from keras_retinanet.models.retinanet import *
 
 class PoseCNet():
 
-    def __init__(self, nb_keypoints):
-        self.nb_keypoints = nb_keypoints + 1 # K + 1(mask)
-        input_image = KL.Input(shape=(480,480,3))
+    def __init__(self, nb_keypoints, same_backbone=True):
+        self.nb_keypoints = nb_keypoints + 1  # K + 1(mask)
+        input_image = KL.Input(shape=(480, 480, 3))
+        if same_backbone:
 
-        _,C2,C3,C4,C5 = resnet_graph(input_image, "resnet50", True)
-        self.fpn_part(C2,C3,C4,C5)
 
-        retina_net = retinanet(input_image,[C3,C4,C5], 1)
-        retina_bbox = retinanet_bbox(retina_net)
-        detection = retina_bbox.output
-        print(detection)
-        output = [self.D]
-        output.extend(detection)
-        self.model = Model(inputs=[input_image], outputs=output)
-        print(self.model.summary())
+            _,C2,C3,C4,C5 = resnet_graph(input_image, "resnet50", True)
+            self.fpn_part(C2,C3,C4,C5)
+
+            retina_net = retinanet(input_image,[C3,C4,C5], 1)
+            retina_bbox = retinanet_bbox(retina_net)
+            detection = retina_bbox.output
+            print(detection)
+            output = [self.D]
+            output.extend(detection)
+            self.model = Model(inputs=input_image, outputs=output)
+            print(self.model.summary())
+        else:
+            _, C2, C3, C4, C5 = resnet_graph(input_image, "resnet50", True)
+            self.fpn_part(C2, C3, C4, C5)
+
+            _, C2_2, C3_2, C4_2, C5_2 = resnet_graph(input_image, "resnet50", True)
+            retina_net = retinanet(input_image, [C3_2, C4_2, C5_2], 1)
+            retina_bbox = retinanet_bbox(retina_net)
+            detection = retina_bbox.output
+            print(detection)
+            output = [self.D]
+            output.extend(detection)
+            self.model = Model(inputs=[input_image], outputs=output)
+            print(self.model.summary())
+
 
     def fpn_part(self, C2,C3,C4,C5):
 

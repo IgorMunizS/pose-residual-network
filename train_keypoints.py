@@ -128,7 +128,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # get the model
 
-    model = KeypointNet(18).model
+    model = KeypointNet(18, True).model
 
     # restore weights
     #last_epoch = restore_weights(weights_best_file, model)
@@ -149,7 +149,7 @@ if __name__ == '__main__':
         img_dir = os.path.abspath(os.path.join(curr_dir, 'data/train2017/'))
     else:
         annot_path = ('/home/igor/Pesquisa/Datasets/COCO/annotations/person_keypoints_val2017.json')
-        img_dir = ('/home/igor/Pesquisa/Datasets/COCO/val2017/')
+        img_dir = ('/home/igor/Pesquisa/Datasets/COCO/images/val2017/')
 
     # get dataflow of samples
 

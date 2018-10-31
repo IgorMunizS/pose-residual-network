@@ -123,6 +123,7 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0, freeze_
 
     if args.optimizer == 'adam':
         opt = keras.optimizers.adam(lr=args.lr, clipnorm=0.001)
+        print("Adam com", args.lr)
     elif args.optimizer == 'sgd':
         opt = keras.optimizers.sgd(lr=args.lr, decay=0.00001, momentum=0.9, nesterov=True)
 

@@ -7,9 +7,12 @@ from backbone import resnet_graph
 
 class KeypointNet():
 
-    def __init__(self, nb_keypoints):
+    def __init__(self, nb_keypoints, prediction = False):
         self.nb_keypoints = nb_keypoints + 1 # K + 1(mask)
-        input_image = KL.Input(shape=(480,480,3))
+        if prediction:
+            input_image = KL.Input(shape=(None, None, 3))
+        else:
+            input_image = KL.Input(shape=(480,480,3))
         #input_heat_mask = KL.Input(shape=(120,120,19))
         _,C2,C3,C4,C5 = resnet_graph(input_image, "resnet50", True)
         self.fpn_part(C2,C3,C4,C5)
