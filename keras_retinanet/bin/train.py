@@ -448,6 +448,7 @@ def main(args=None):
     if args.snapshot is not None:
         print('Loading model, this may take a second...')
         model            = models.load_model(args.snapshot, backbone_name=args.backbone)
+        model.compile(optimizer=keras.optimizers.adam(lr=args.lr, clipnorm=0.001))
         training_model   = model
         anchor_params    = None
         if args.config and 'anchor_parameters' in args.config:
